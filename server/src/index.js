@@ -80,6 +80,12 @@ app.get('/api/tmdb/movie/upcoming', async (req, res) => {
   res.json(data)
 })
 
+app.get('/api/tmdb/movie/now_playing', async (req, res) => {
+  const page = req.query.page || 1
+  const data = await tmdbFetch(`/movie/now_playing?page=${encodeURIComponent(page)}`)
+  res.json(data)
+})
+
 app.get('/api/tmdb/tv/airing_today', async (req, res) => {
   const page = req.query.page || 1
   const data = await tmdbFetch(`/tv/airing_today?page=${encodeURIComponent(page)}`)
@@ -123,5 +129,4 @@ app.get('/api', (req, res) => {
 app.listen(PORT, () => {
   console.log(`[netplix-server] listening on http://localhost:${PORT}`)
 })
-
 

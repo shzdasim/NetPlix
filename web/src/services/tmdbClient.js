@@ -22,6 +22,7 @@ export const tmdbClient = {
   popularMovies: ({ page = 1 } = {}) => getJSON(`/movie/popular?page=${encodeURIComponent(page)}`),
   popularTv: ({ page = 1 } = {}) => getJSON(`/tv/popular?page=${encodeURIComponent(page)}`),
   upcomingMovies: ({ page = 1 } = {}) => getJSON(`/movie/upcoming?page=${encodeURIComponent(page)}`),
+  nowPlayingMovies: ({ page = 1 } = {}) => getJSON(`/movie/now_playing?page=${encodeURIComponent(page)}`),
   airingTodayTv: ({ page = 1 } = {}) => getJSON(`/tv/airing_today?page=${encodeURIComponent(page)}`),
 
   searchMovie: ({ q, page = 1 } = {}) => getJSON(`/search/movie?q=${encodeURIComponent(q)}&page=${encodeURIComponent(page)}`),
@@ -30,4 +31,3 @@ export const tmdbClient = {
   movieDetails: ({ id } = {}) => getJSON(`/movie/${encodeURIComponent(id)}`),
   tvDetails: ({ id } = {}) => getJSON(`/tv/${encodeURIComponent(id)}`)
 }
-
