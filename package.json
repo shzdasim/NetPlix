@@ -1,0 +1,13 @@
+{
+  "name": "netplix",
+  "version": "1.0.0",
+  "description": "> Goal: Build **NetPlix**, a personal Netflix-like web app that lets you **browse** movies + TV series and **play** via the free source API provided by **vidsrc.ru**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
