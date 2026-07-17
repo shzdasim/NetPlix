@@ -48,18 +48,42 @@
         ›
       </button>
 
-      <div class="hero__progress" aria-label="Slide selector">
+      <div class="hero__selector" aria-label="Slide selector">
         <button
-          v-for="(_, idx) in slides"
+          v-for="(movie, idx) in slides"
           :key="idx"
           type="button"
-          class="hero__dot"
+          class="hero__tab"
           :class="{ 'is-active': idx === activeSlideIndex }"
-          :aria-label="`Go to slide ${idx + 1}`"
           @click="goTo(idx)"
-        />
+        >
+          {{ movie.title || `Slide ${idx + 1}` }}
+        </button>
       </div>
     </div>
+
+    <section class="movies__section movies__section--rows">
+      <ContentRow
+        title="Trending Movies"
+        mediaType="movie"
+        :loading="rowState.trending.loading"
+        :items="rowState.trending.items"
+      />
+
+      <ContentRow
+        title="Most Watched Movies"
+        mediaType="movie"
+        :loading="rowState.popular.loading"
+        :items="rowState.popular.items"
+      />
+
+      <ContentRow
+        title="Latest Movies"
+        mediaType="movie"
+        :loading="rowState.latest.loading"
+        :items="rowState.latest.items"
+      />
+    </section>
 
     <section class="movies__section">
       <div class="movies__header">
@@ -98,6 +122,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import ContentRow from '../components/ContentRow.vue'
 import MediaCard from '../components/MediaCard.vue'
 import { tmdbClient } from '../services/tmdbClient'
 
@@ -119,6 +144,12 @@ const featured = reactive({
   backdropPath: '',
 })
 
+const rowState = reactive({
+  trending: { loading: true, items: [] },
+  popular: { loading: true, items: [] },
+  latest: { loading: true, items: [] },
+})
+
 let rotationId = null
 
 function mapMovie(m) {
@@ -131,6 +162,19 @@ function mapMovie(m) {
     _backdrop_path: m.backdrop_path || m.poster_path || '',
     _overview: m.overview || '',
   }
+}
+
+function loadRowData(source, targetKey) {
+  return source
+    .then((res) => {
+      rowState[targetKey].items = (res?.results || []).slice(0, 12).map(mapMovie)
+    })
+    .catch((e) => {
+      console.error(e)
+    })
+    .finally(() => {
+      rowState[targetKey].loading = false
+    })
 }
 
 function mapFeatured(m) {
@@ -232,6 +276,11 @@ async function loadMore() {
 onMounted(async () => {
   movieLoading.value = true
   try {
+    const [trendTask, popularTask, latestTask] = [
+      loadRowData(tmdbClient.trendingMovie(), 'trending'),
+      loadRowData(tmdbClient.popularMovies(), 'popular'),
+    ]
+
     const { rawResults, items: firstItems } = await fetchPage(page.value)
     items.value = firstItems
 
@@ -239,6 +288,9 @@ onMounted(async () => {
     if (slides.length) {
       setFeatured(0)
     }
+
+    rowState.latest.items = rawResults.slice(0, 12).map(mapMovie)
+    rowState.latest.loading = false
 
     if (firstItems.length === 0) {
       hasMore.value = false
@@ -248,8 +300,11 @@ onMounted(async () => {
       if (!slides.length) return
       setFeatured(activeSlideIndex.value + 1)
     }, 7000)
+
+    await Promise.allSettled([trendTask, popularTask])
   } catch (e) {
     console.error(e)
+    rowState.latest.loading = false
   } finally {
     movieLoading.value = false
   }
@@ -265,10 +320,64 @@ onBeforeUnmount(() => {
   padding: 0;
 }
 
+.hero__selector {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 18px;
+  z-index: 6;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+
+.hero__tab {
+  pointer-events: auto;
+  min-width: 44px;
+  max-width: 170px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.hero__tab.is-active {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #000;
+  box-shadow: 0 10px 28px rgba(0, 255, 157, 0.24);
+  transform: translateY(-1px);
+}
+
+.hero__tab:hover {
+  transform: translateY(-1px);
+}
+
 .movies__section {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
+}
+
+.movies__section--rows {
+  padding-top: 8px;
+  padding-bottom: 0;
 }
 
 .movies__header {
