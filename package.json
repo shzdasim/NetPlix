@@ -4,10 +4,11 @@
   "description": "> Goal: Build **NetPlix**, a personal Netflix-like web app that lets you **browse** movies + TV series and **play** via the free source API provided by **vidsrc.ru**.",
   "main": "index.js",
   "scripts": {
+    "dev": "node scripts/devBoth.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "module"
 }

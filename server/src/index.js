@@ -1,6 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 
+import dotenv from 'dotenv'
+
+// Load repo-level .env (NetPlix/.env) when running backend.
+dotenv.config({ path: new URL('../../.env', import.meta.url) })
+
 const app = express()
 app.use(cors())
 app.use(express.json())
